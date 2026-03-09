@@ -1,17 +1,18 @@
 import { useState, useEffect } from "react";
 import { Tabla } from "../components/UI/Tabla";
 import { Modal } from "../components/UI/Modal";
-
-interface Servicio {
-    id: string;
-    nombre: string;
-    precio: number;
-    duracionMinutos: number;
-}
+import {
+    type Servicio,
+    obtenerServicios,
+    crearServicio,
+    actualizarServicio,
+    eliminarServicio as eliminarServicioApi,
+} from "../api/apiServicios";
 
 export const Servicios = () => {
     const [servicios, asignarServicios] = useState<Servicio[]>([]);
     const [cargando, asignarCargando] = useState(true);
+    const [error, asignarError] = useState<string | null>(null);
     const [modalAbierto, asignarModalAbierto] = useState(false);
     const [servicioEditando, asignarServicioEditando] = useState<Servicio | null>(null);
 
@@ -19,6 +20,7 @@ export const Servicios = () => {
         nombre: "",
         precio: 0,
         duracionMinutos: 0,
+        descripcion: "",
     });
 
     const columnas: { llave: keyof Servicio; etiqueta: string }[] = [
@@ -30,38 +32,40 @@ export const Servicios = () => {
     const cargarServicios = async () => {
         try {
             asignarCargando(true);
-            const datosFalsos: Servicio[] = [
-                { id: "1", nombre: "Lavado de Motor, Aspirado profundo", precio: 25.0, duracionMinutos: 45 },
-                { id: "2", nombre: "Encerado y Pulido Exterior", precio: 40.0, duracionMinutos: 90 },
-            ];
-            setTimeout(() => {
-                asignarServicios(datosFalsos);
-                asignarCargando(false);
-            }, 500);
-        } catch (error) {
-            console.error(error);
+            asignarError(null);
+            const datos = await obtenerServicios();
+            asignarServicios(datos);
+        } catch (err) {
+            asignarError("No se pudo conectar con el servidor. Verifique que el backend esté activo.");
+            console.error(err);
+        } finally {
             asignarCargando(false);
         }
     };
 
     useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         cargarServicios();
     }, []);
 
     const manejarEnvio = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
+            if (servicioEditando) {
+                await actualizarServicio(servicioEditando.id, formulario);
+            } else {
+                await crearServicio(formulario);
+            }
             asignarModalAbierto(false);
-            cargarServicios();
-        } catch (error) {
-            console.error(error);
+            await cargarServicios();
+        } catch (err) {
+            console.error(err);
+            alert("Error al guardar el servicio. Intente de nuevo.");
         }
     };
 
     const abrirModalCrear = () => {
         asignarServicioEditando(null);
-        asignarFormulario({ nombre: "", precio: 0, duracionMinutos: 0 });
+        asignarFormulario({ nombre: "", precio: 0, duracionMinutos: 0, descripcion: "" });
         asignarModalAbierto(true);
     };
 
@@ -71,17 +75,24 @@ export const Servicios = () => {
             nombre: servicio.nombre,
             precio: servicio.precio,
             duracionMinutos: servicio.duracionMinutos,
+            descripcion: servicio.descripcion ?? "",
         });
         asignarModalAbierto(true);
     };
 
-    const eliminarServicio = async (_id: string) => {
-        if (confirm("¿Seguro que desea eliminar este servicio?")) {
-            cargarServicios();
+    const manejarEliminar = async (id: string) => {
+        if (!confirm("¿Seguro que desea eliminar este servicio?")) return;
+        try {
+            await eliminarServicioApi(id);
+            await cargarServicios();
+        } catch (err) {
+            console.error(err);
+            alert("Error al eliminar el servicio.");
         }
     };
 
     if (cargando) return <div className="p-8 text-center text-gray-500">Cargando datos...</div>;
+    if (error) return <div className="p-8 text-center text-red-500">{error}</div>;
 
     return (
         <div className="p-8 max-w-6xl mx-auto">
@@ -95,7 +106,7 @@ export const Servicios = () => {
                         <button onClick={() => abrirModalEditar(fila)} className="text-indigo-600 hover:text-indigo-800 font-medium transition-colors cursor-pointer">
                             Editar
                         </button>
-                        <button onClick={() => eliminarServicio(fila.id)} className="text-red-600 hover:text-red-800 font-medium transition-colors cursor-pointer">
+                        <button onClick={() => manejarEliminar(fila.id)} className="text-red-600 hover:text-red-800 font-medium transition-colors cursor-pointer">
                             Eliminar
                         </button>
                     </div>
@@ -139,6 +150,15 @@ export const Servicios = () => {
                             className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-shadow"
                             value={formulario.duracionMinutos}
                             onChange={(e) => asignarFormulario({ ...formulario, duracionMinutos: parseInt(e.target.value) })}
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Descripción (opcional)</label>
+                        <input
+                            type="text"
+                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-shadow"
+                            value={formulario.descripcion}
+                            onChange={(e) => asignarFormulario({ ...formulario, descripcion: e.target.value })}
                         />
                     </div>
                     <div className="flex justify-end gap-3 mt-4">
