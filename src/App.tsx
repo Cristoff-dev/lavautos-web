@@ -7,8 +7,8 @@ import InventarioPage from "./pages/Inventario/InventarioPage";
 import FacturacionPage from "./pages/factura/FacturacionPage";
 import ModuloContable from "./pages/Contable/ModuloContable";
 import RecepcionPage from "./pages/recepciones/RecepcionPage";
-import { Servicios } from "./pages/Servicios";
-import { Proveedores } from "./pages/Proveedores";
+import { Servicios } from "./pages/Servicios/Servicios";
+import { Proveedores } from "./pages/Proveedores/Proveedores";
 
 import { DashboardLayout } from "./components/Layout/DashboardLayout";
 

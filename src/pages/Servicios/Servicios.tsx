@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
-import { Tabla } from "../components/UI/Tabla";
-import { Modal } from "../components/UI/Modal";
+import { Tabla } from "../../components/UI/Tabla";
+import { Modal } from "../../components/UI/Modal";
 import {
     type Servicio,
     obtenerServicios,
     crearServicio,
     actualizarServicio,
     eliminarServicio as eliminarServicioApi,
-} from "../api/apiServicios";
+} from "../../api/apiServicios";
 
 export const Servicios = () => {
     const [servicios, asignarServicios] = useState<Servicio[]>([]);
@@ -91,27 +91,33 @@ export const Servicios = () => {
         }
     };
 
-    if (cargando) return <div className="p-8 text-center text-gray-500">Cargando datos...</div>;
-    if (error) return <div className="p-8 text-center text-red-500">{error}</div>;
+    if (cargando) return <div className="p-8 text-center text-slate-400">Cargando datos...</div>;
+    if (error) return <div className="p-8 text-center text-red-400">{error}</div>;
 
     return (
-        <div className="p-8 max-w-6xl mx-auto">
-            <Tabla
-                titulo="Servicios"
-                columnas={columnas}
-                datos={servicios}
-                alCrearNuevo={abrirModalCrear}
-                acciones={(fila) => (
-                    <div className="flex gap-3">
-                        <button onClick={() => abrirModalEditar(fila)} className="text-indigo-600 hover:text-indigo-800 font-medium transition-colors cursor-pointer">
-                            Editar
-                        </button>
-                        <button onClick={() => manejarEliminar(fila.id)} className="text-red-600 hover:text-red-800 font-medium transition-colors cursor-pointer">
-                            Eliminar
-                        </button>
-                    </div>
-                )}
-            />
+        <div className="space-y-8">
+            <h2 className="text-white text-3xl font-black uppercase tracking-tighter">
+                Gestión de <span className="text-cyan-400">Servicios</span>
+            </h2>
+
+            <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl">
+                <Tabla
+                    titulo="Servicios"
+                    columnas={columnas}
+                    datos={servicios}
+                    alCrearNuevo={abrirModalCrear}
+                    acciones={(fila) => (
+                        <div className="flex gap-3">
+                            <button onClick={() => abrirModalEditar(fila)} className="text-cyan-400 hover:text-cyan-300 font-medium transition-colors cursor-pointer">
+                                Editar
+                            </button>
+                            <button onClick={() => manejarEliminar(fila.id)} className="text-red-400 hover:text-red-300 font-medium transition-colors cursor-pointer">
+                                Eliminar
+                            </button>
+                        </div>
+                    )}
+                />
+            </div>
 
             <Modal
                 abierto={modalAbierto}
@@ -120,43 +126,43 @@ export const Servicios = () => {
             >
                 <form onSubmit={manejarEnvio} className="flex flex-col gap-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                        <label className="block text-sm font-medium text-slate-300 mb-1">Nombre</label>
                         <input
                             required
                             type="text"
-                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-shadow"
+                            className="w-full bg-slate-800 border border-slate-700 text-white rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-shadow"
                             value={formulario.nombre}
                             onChange={(e) => asignarFormulario({ ...formulario, nombre: e.target.value })}
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Precio ($)</label>
+                        <label className="block text-sm font-medium text-slate-300 mb-1">Precio ($)</label>
                         <input
                             required
                             type="number"
                             step="0.01"
                             min="0"
-                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-shadow"
+                            className="w-full bg-slate-800 border border-slate-700 text-white rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-shadow"
                             value={formulario.precio}
                             onChange={(e) => asignarFormulario({ ...formulario, precio: parseFloat(e.target.value) })}
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Duración (minutos)</label>
+                        <label className="block text-sm font-medium text-slate-300 mb-1">Duración (minutos)</label>
                         <input
                             required
                             type="number"
                             min="1"
-                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-shadow"
+                            className="w-full bg-slate-800 border border-slate-700 text-white rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-shadow"
                             value={formulario.duracionMinutos}
                             onChange={(e) => asignarFormulario({ ...formulario, duracionMinutos: parseInt(e.target.value) })}
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Descripción (opcional)</label>
+                        <label className="block text-sm font-medium text-slate-300 mb-1">Descripción (opcional)</label>
                         <input
                             type="text"
-                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-shadow"
+                            className="w-full bg-slate-800 border border-slate-700 text-white rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-shadow"
                             value={formulario.descripcion}
                             onChange={(e) => asignarFormulario({ ...formulario, descripcion: e.target.value })}
                         />
@@ -165,13 +171,13 @@ export const Servicios = () => {
                         <button
                             type="button"
                             onClick={() => asignarModalAbierto(false)}
-                            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 font-medium transition-colors cursor-pointer"
+                            className="px-4 py-2 border border-slate-600 rounded-md text-slate-300 hover:bg-slate-800 font-medium transition-colors cursor-pointer"
                         >
                             Cancelar
                         </button>
                         <button
                             type="submit"
-                            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 font-medium transition-colors cursor-pointer"
+                            className="px-4 py-2 bg-cyan-600 text-white rounded-md hover:bg-cyan-500 font-medium transition-colors cursor-pointer"
                         >
                             Guardar
                         </button>
