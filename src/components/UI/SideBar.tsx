@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { TfiHome, TfiTruck, TfiPackage, TfiReceipt, TfiWallet, TfiMoney } from "react-icons/tfi";
+import { TfiHome, TfiTruck, TfiPackage, TfiReceipt, TfiWallet, TfiMoney, TfiTag, TfiShoppingCart } from "react-icons/tfi";
 
 export const Sidebar = ({ isOpen }: { isOpen: boolean }) => {
     const menuItems = [
@@ -7,6 +7,8 @@ export const Sidebar = ({ isOpen }: { isOpen: boolean }) => {
         { name: "Vehículo(s)", path: "/vehiculos", icon: <TfiTruck /> },
         { name: "Inventario", path: "/inventario", icon: <TfiPackage /> },
         { name: "Recepcion", path: "/recepcion", icon: <TfiReceipt /> },
+        { name: "Servicios", path: "/servicios", icon: <TfiTag /> },
+        { name: "Proveedores", path: "/proveedores", icon: <TfiShoppingCart /> },
         { name: "Facturacion", path: "/factura", icon: <TfiWallet /> },
         { name: "Contabilidad", path: "/contable", icon: <TfiMoney /> },
     ];
