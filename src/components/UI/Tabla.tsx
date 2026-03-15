@@ -49,7 +49,30 @@ export const Tabla = <T extends { id?: string | number }>({ titulo, columnas, da
                                 <tr key={fila.id || indice} className="hover:bg-slate-700 transition-colors">
                                     {columnas.map((columna) => (
                                         <td key={String(columna.llave)} className="px-6 py-4 whitespace-nowrap">
-                                            {fila[columna.llave] as ReactNode}
+                                            {(() => {
+                                                const valor = fila[columna.llave];
+                                                if (typeof valor === 'boolean') {
+                                                    return (
+                                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${valor
+                                                                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                                                                : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+                                                            }`}>
+                                                            {valor ? 'Activo' : 'Inactivo'}
+                                                        </span>
+                                                    );
+                                                } else if (typeof valor === 'string' && (valor === 'Activo' || valor === 'Inactivo')) {
+                                                    return (
+                                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${valor === 'Activo'
+                                                                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                                                                : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+                                                            }`}>
+                                                            {valor}
+                                                        </span>
+                                                    );
+                                                } else {
+                                                    return valor as ReactNode;
+                                                }
+                                            })()}
                                         </td>
                                     ))}
                                     {acciones && <td className="px-6 py-4 whitespace-nowrap">{acciones(fila)}</td>}

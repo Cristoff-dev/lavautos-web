@@ -22,13 +22,25 @@ interface ProveedorBackend {
 
 const BASE = `${import.meta.env.VITE_API_URL}/providers`;
 
+// Utility for dealing with broken latin1 encoding
+const parseText = (text: string | null | undefined) => {
+    if (!text) return '';
+    try {
+        // Fix for common DB misconfiguration where utf8 is read as latin1
+        return decodeURIComponent(escape(text));
+    } catch (e) {
+        // If it's already valid utf8 or another error occurred, just return it
+        return text;
+    }
+}
+
 const mapear = (p: ProveedorBackend): Proveedor => ({
     id: p.id,
-    nombre: p.name,
-    contacto: p.contactName ?? '',
-    telefono: p.phone ?? '',
-    email: p.email ?? '',
-    direccion: p.address ?? '',
+    nombre: parseText(p.name),
+    contacto: parseText(p.contactName),
+    telefono: parseText(p.phone),
+    email: parseText(p.email),
+    direccion: parseText(p.address),
     estado: p.isActive ? 'Activo' : 'Inactivo',
 });
 
