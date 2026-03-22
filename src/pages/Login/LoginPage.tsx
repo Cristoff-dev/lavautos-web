@@ -9,7 +9,6 @@ function LoginPage(){
 
 const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // ... tu lógica
 
         console.log("hackeando la nasa mi amor!!!!.... okey iniciado sesion xd");
 

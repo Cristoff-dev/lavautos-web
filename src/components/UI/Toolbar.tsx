@@ -33,7 +33,7 @@ export const Toolbar = ({ onMenuClick }: ToolbarProps) => {
                 </button>
 
                 <h1 className="text-cyan-400 font-black text-xl tracking-widest uppercase italic ml-2">
-                    Acuático <span className="text-white">App</span>
+                    LAVADO <span className="text-white">AUTOS</span>
                 </h1>
             </div>
 

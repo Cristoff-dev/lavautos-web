@@ -19,7 +19,7 @@ export const FacturacionPage = () => {
                 </div>
 
                 <div className="flex gap-3 w-full md:w-auto">
-                    <input type="text" placeholder="Buscar placa o cliente..." className="bg-slate-900 border border-slate-800 text-white px-4 py-2 rounded-xl focus:ring-1 focus:ring-cyan-500 outline-none flex-1 md:w-64" />
+                    <input type="text" placeholder="Buscar trabajador o servicio..." className="bg-slate-900 border border-slate-800 text-white px-4 py-2 rounded-xl focus:ring-1 focus:ring-cyan-500 outline-none flex-1 md:w-64" />
                     <button 
                         onClick={() => setIsFacturaModalOpen(true)}
                         className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold px-6 py-2 rounded-xl transition-all shadow-lg shadow-cyan-900/20 active:scale-95 text-sm uppercase">Nuevo</button>
