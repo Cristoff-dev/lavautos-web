@@ -16,7 +16,7 @@ export async function login(email: string, password: string): Promise<RespuestaL
     const res = await fetch(`${BASE}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ username: email, password }),
     });
 
     if (res.status === 401 || res.status === 404) {
