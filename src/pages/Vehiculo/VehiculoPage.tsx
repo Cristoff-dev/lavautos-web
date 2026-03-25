@@ -4,17 +4,17 @@ import { VehiculoModal } from './VehiculoModal';
 export const VehiculoPage = () => {
     const [view, setView] = useState<'activos' | 'eliminados'>('activos');
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedVehiculo, setSelectedVehiculo] = useState<any | null>(null);
+    const [selectedVehiculo, setSelectedVehiculo] = useState<Record<string, unknown> | null>(null);
 
     const handleOpenCreate = () => {
-    setSelectedVehiculo(null);
-    setIsModalOpen(true);
-};
+        setSelectedVehiculo(null);
+        setIsModalOpen(true);
+    };
 
-    const handleOpenEdit = (vehiculo: any) => {
-    setSelectedVehiculo(vehiculo);
-    setIsModalOpen(true);
-};
+    const handleOpenEdit = (vehiculo: Record<string, unknown>) => {
+        setSelectedVehiculo(vehiculo);
+        setIsModalOpen(true);
+    };
 
     return (
         <div className="animate-fadeIn">
@@ -31,9 +31,9 @@ export const VehiculoPage = () => {
 
                 <div className="flex gap-3 w-full md:w-auto">
                     <input type="text" placeholder="Buscar placa o cliente..." className="bg-slate-900 border border-slate-800 text-white px-4 py-2 rounded-xl focus:ring-1 focus:ring-cyan-500 outline-none flex-1 md:w-64" />
-                    <button 
-                    onClick={handleOpenCreate}
-                    className="bg-cyan-500 text-slate-900 px-6 py-2 rounded-xl font-bold hover:bg-cyan-400 transition-all">NUEVO</button>
+                    <button
+                        onClick={handleOpenCreate}
+                        className="bg-cyan-500 text-slate-900 px-6 py-2 rounded-xl font-bold hover:bg-cyan-400 transition-all">NUEVO</button>
                 </div>
             </div>
 
@@ -60,24 +60,24 @@ export const VehiculoPage = () => {
                             </td>
                             <td className="px-6 py-4">
                                 <div className="flex justify-center gap-2">
-                                    <button 
-                                    onClick={() => handleOpenEdit({ 
-                                    placa: 'GTR-2026', 
-                                    propietario: 'Michael Buble', 
-                                    servicio: 'LAVADO FULL' 
-                                                                })}
-                                    title="Editar" 
-                                    className="p-2 hover:bg-cyan-500/20 text-slate-400 hover:text-cyan-400 rounded-lg transition-all text-lg">📝</button>
+                                    <button
+                                        onClick={() => handleOpenEdit({
+                                            placa: 'GTR-2026',
+                                            propietario: 'Michael Buble',
+                                            servicio: 'LAVADO FULL'
+                                        })}
+                                        title="Editar"
+                                        className="p-2 hover:bg-cyan-500/20 text-slate-400 hover:text-cyan-400 rounded-lg transition-all text-lg">📝</button>
                                     <button title="Eliminar" className="p-2 hover:bg-red-500/20 text-slate-400 hover:text-red-500 rounded-lg transition-all text-lg">🗑️</button>
                                 </div>
                             </td>
                         </tr>
                     </tbody>
                 </table>
-                <VehiculoModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        vehiculoToEdit={selectedVehiculo}/>
+                <VehiculoModal
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    vehiculoToEdit={selectedVehiculo} />
             </div>
         </div>
     );
