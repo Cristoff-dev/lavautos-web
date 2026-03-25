@@ -16,15 +16,17 @@ export const Servicios = () => {
     const [modalAbierto, asignarModalAbierto] = useState(false);
     const [servicioEditando, asignarServicioEditando] = useState<Servicio | null>(null);
 
-    const [formulario, asignarFormulario] = useState<{ nombre: string, precio: number | "", duracionMinutos: number | "", descripcion: string }>({
+    const [formulario, asignarFormulario] = useState<{nombre: string, precio: number | "", duracionMinutos: number | "", descripcion: string, tipoVehiculo: string}>({
         nombre: "",
         precio: "",
         duracionMinutos: "",
         descripcion: "",
+        tipoVehiculo: "SEDAN",
     });
 
     const columnas: { llave: keyof Servicio; etiqueta: string }[] = [
         { llave: "nombre", etiqueta: "Nombre" },
+        { llave: "tipoVehiculo", etiqueta: "Tipo de Vehículo" },
         { llave: "precio", etiqueta: "Precio ($)" },
         { llave: "duracionMinutos", etiqueta: "Duraci\u00f3n (min)" },
         { llave: "descripcion", etiqueta: "Descripci\u00f3n" },
@@ -72,7 +74,7 @@ export const Servicios = () => {
 
     const abrirModalCrear = () => {
         asignarServicioEditando(null);
-        asignarFormulario({ nombre: "", precio: "", duracionMinutos: "", descripcion: "" });
+        asignarFormulario({ nombre: "", precio: "", duracionMinutos: "", descripcion: "", tipoVehiculo: "SEDAN" });
         asignarModalAbierto(true);
     };
 
@@ -83,6 +85,7 @@ export const Servicios = () => {
             precio: servicio.precio,
             duracionMinutos: servicio.duracionMinutos,
             descripcion: servicio.descripcion ?? "",
+            tipoVehiculo: servicio.tipoVehiculo,
         });
         asignarModalAbierto(true);
     };
@@ -146,7 +149,18 @@ export const Servicios = () => {
                                 <tr key={servicio.id} className="hover:bg-slate-800/30 transition-colors group">
                                     {columnas.map((columna) => (
                                         <td key={columna.llave} className={`px-6 py-4 ${columna.llave === "nombre" ? "font-mono text-cyan-400 font-bold tracking-widest" : "text-slate-200"}`}>
-                                            {servicio[columna.llave]}
+                                            {(() => {
+                                                const valor = servicio[columna.llave];
+                                                if (columna.llave === "tipoVehiculo") {
+                                                    const dict: Record<string, string> = { SEDAN: "Sedán", CAMIONETA: "Camioneta", MOTO: "Moto", CAMION: "Camión" };
+                                                    return (
+                                                        <span className="bg-slate-800 text-cyan-300 px-2 py-1 rounded text-xs font-bold tracking-wider">
+                                                            {dict[valor as string] || valor}
+                                                        </span>
+                                                    );
+                                                }
+                                                return valor;
+                                            })()}
                                         </td>
                                     ))}
                                     <td className="px-6 py-4">
@@ -197,6 +211,19 @@ export const Servicios = () => {
                             value={formulario.nombre}
                             onChange={(e) => asignarFormulario({ ...formulario, nombre: e.target.value })}
                         />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-slate-300 mb-1">Tipo de Vehículo</label>
+                        <select
+                            className="w-full bg-slate-800 border border-slate-700 text-white rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-shadow"
+                            value={formulario.tipoVehiculo}
+                            onChange={(e) => asignarFormulario({ ...formulario, tipoVehiculo: e.target.value })}
+                        >
+                            <option value="SEDAN">Sedán</option>
+                            <option value="CAMIONETA">Camioneta</option>
+                            <option value="MOTO">Moto</option>
+                            <option value="CAMION">Camión</option>
+                        </select>
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-slate-300 mb-1">Precio ($)</label>
