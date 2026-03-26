@@ -17,20 +17,19 @@ export const Proveedores = () => {
     const [proveedorEditando, asignarProveedorEditando] = useState<Proveedor | null>(null);
 
     const [formulario, asignarFormulario] = useState({
+        rif: "",
         nombre: "",
-        contacto: "",
         telefono: "",
         email: "",
-        direccion: "",
-        estado: "Activo" as "Activo" | "Inactivo",
+        activo: true,
     });
 
     const columnas: { llave: keyof Proveedor; etiqueta: string }[] = [
+        { llave: "rif", etiqueta: "RIF" },
         { llave: "nombre", etiqueta: "Nombre" },
-        { llave: "contacto", etiqueta: "Contacto" },
-        { llave: "telefono", etiqueta: "Tel\u00e9fono" },
+        { llave: "telefono", etiqueta: "Teléfono" },
         { llave: "email", etiqueta: "Email" },
-        { llave: "estado", etiqueta: "Estado" },
+        { llave: "activo", etiqueta: "Estado" },
     ];
 
     const cargarProveedores = async () => {
@@ -38,7 +37,7 @@ export const Proveedores = () => {
             asignarCargando(true);
             asignarError(null);
             const datos = await obtenerProveedores();
-            asignarProveedores(datos.sort((a, b) => a.estado === "Activo" && b.estado === "Inactivo" ? -1 : a.estado === "Inactivo" && b.estado === "Activo" ? 1 : 0));
+            asignarProveedores(datos.sort((a, b) => (a.activo === b.activo ? 0 : a.activo ? -1 : 1)));
         } catch (err) {
             asignarError("No se pudo conectar con el servidor. Verifique que el backend esté activo.");
             console.error(err);
@@ -60,8 +59,7 @@ export const Proveedores = () => {
                 await crearProveedor(formulario);
             }
             asignarModalAbierto(false);
-            const datos = await obtenerProveedores();
-            asignarProveedores(datos.sort((a, b) => a.estado === "Activo" && b.estado === "Inactivo" ? -1 : a.estado === "Inactivo" && b.estado === "Activo" ? 1 : 0));
+            await cargarProveedores();
         } catch (err) {
             console.error(err);
             alert("Error al guardar el proveedor. Intente de nuevo.");
@@ -70,19 +68,18 @@ export const Proveedores = () => {
 
     const abrirModalCrear = () => {
         asignarProveedorEditando(null);
-        asignarFormulario({ nombre: "", contacto: "", telefono: "", email: "", direccion: "", estado: "Activo" });
+        asignarFormulario({ rif: "", nombre: "", telefono: "", email: "", activo: true });
         asignarModalAbierto(true);
     };
 
     const abrirModalEditar = (proveedor: Proveedor) => {
         asignarProveedorEditando(proveedor);
         asignarFormulario({
+            rif: proveedor.rif,
             nombre: proveedor.nombre,
-            contacto: proveedor.contacto,
             telefono: proveedor.telefono,
             email: proveedor.email,
-            direccion: proveedor.direccion,
-            estado: proveedor.estado,
+            activo: proveedor.activo,
         });
         asignarModalAbierto(true);
     };
@@ -91,11 +88,20 @@ export const Proveedores = () => {
         if (!confirm("¿Seguro que desea eliminar este proveedor?")) return;
         try {
             await eliminarProveedorApi(id);
-            const datos = await obtenerProveedores();
-            asignarProveedores(datos.sort((a, b) => a.estado === "Activo" && b.estado === "Inactivo" ? -1 : a.estado === "Inactivo" && b.estado === "Activo" ? 1 : 0));
+            await cargarProveedores();
         } catch (err) {
             console.error(err);
             alert("Error al eliminar el proveedor.");
+        }
+    };
+
+    const cambiarActivo = async (proveedor: Proveedor, activo: boolean) => {
+        try {
+            await actualizarProveedor(proveedor.id, { ...proveedor, activo });
+            await cargarProveedores();
+        } catch (err) {
+            console.error(err);
+            alert("Error al cambiar el estado del proveedor.");
         }
     };
 
@@ -107,7 +113,7 @@ export const Proveedores = () => {
             <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
                 <div>
                     <h2 className="text-white text-3xl font-black uppercase tracking-tighter">
-                        Gesti&oacute;n de <span className="text-cyan-400">Proveedores</span>
+                        Gestión de <span className="text-cyan-400">Proveedores</span>
                     </h2>
                 </div>
 
@@ -143,35 +149,25 @@ export const Proveedores = () => {
                             </tr>
                         ) : (
                             proveedores.map((proveedor) => (
-                                <tr key={proveedor.id} className={`hover:bg-slate-800/30 transition-colors group ${proveedor.estado === "Inactivo" ? "bg-slate-900/50" : ""}`}>
+                                <tr key={proveedor.id} className={`hover:bg-slate-800/30 transition-colors group ${!proveedor.activo ? "opacity-50" : ""}`}>
                                     {columnas.map((columna) => (
-                                        <td key={columna.llave} className={`px-6 py-4 ${columna.llave === "nombre" ? "font-mono text-cyan-400 font-bold tracking-widest" : "text-slate-200"} ${proveedor.estado === "Inactivo" ? "text-slate-500 opacity-50 grayscale transition-all duration-300 hover:opacity-100 hover:grayscale-0 focus-within:opacity-100 focus-within:grayscale-0" : ""}`}>
+                                        <td key={columna.llave} className={`px-6 py-4 ${columna.llave === "nombre" ? "font-mono text-cyan-400 font-bold tracking-widest" : "text-slate-200"}`}>
                                             {(() => {
                                                 const valor = proveedor[columna.llave];
-                                                if (columna.llave === 'estado' && typeof valor === 'string') {
+                                                if (columna.llave === "activo") {
+                                                    const esActivo = valor as boolean;
                                                     return (
                                                         <select
-                                                            value={valor}
-                                                            onChange={async (e) => {
-                                                                const nuevoEstado = e.target.value as "Activo" | "Inactivo";
-                                                                try {
-                                                                    await actualizarProveedor(proveedor.id, { ...proveedor, estado: nuevoEstado });
-                                                                    const datos = await obtenerProveedores();
-                                                                    asignarProveedores(datos.sort((a, b) => a.estado === "Activo" && b.estado === "Inactivo" ? -1 : a.estado === "Inactivo" && b.estado === "Activo" ? 1 : 0));
-                                                                } catch (err) {
-                                                                    console.error(err);
-                                                                    alert("Error al cambiar el estado del proveedor.");
-                                                                }
-                                                            }}
-                                                            className={`bg-slate-800 border ${valor === 'Activo' ? 'border-green-500/50 text-green-400' : 'border-red-500/50 text-red-400'} rounded px-2 py-1 outline-none cursor-pointer focus:ring-1 focus:ring-cyan-500 transition-colors text-sm font-medium`}
+                                                            value={esActivo ? "Activo" : "Inactivo"}
+                                                            onChange={(e) => cambiarActivo(proveedor, e.target.value === "Activo")}
+                                                            className={`bg-slate-800 border ${esActivo ? "border-green-500/50 text-green-400" : "border-red-500/50 text-red-400"} rounded px-2 py-1 outline-none cursor-pointer focus:ring-1 focus:ring-cyan-500 transition-colors text-sm font-medium`}
                                                         >
                                                             <option value="Activo" className="text-green-400 bg-slate-900">Activo</option>
                                                             <option value="Inactivo" className="text-red-400 bg-slate-900">Inactivo</option>
                                                         </select>
                                                     );
-                                                } else {
-                                                    return valor;
                                                 }
+                                                return String(valor ?? "");
                                             })()}
                                         </td>
                                     ))}
@@ -214,35 +210,28 @@ export const Proveedores = () => {
             >
                 <form onSubmit={manejarEnvio} className="flex flex-col gap-4">
                     <div>
+                        <label className="block text-sm font-medium text-slate-300 mb-1">RIF</label>
+                        <input
+                            required
+                            type="text"
+                            placeholder="Ej: J-12345678-9"
+                            disabled={!!proveedorEditando}
+                            className="w-full bg-slate-800 border border-slate-700 text-white rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
+                            value={formulario.rif}
+                            onChange={(e) => asignarFormulario({ ...formulario, rif: e.target.value })}
+                        />
+                    </div>
+                    <div>
                         <label className="block text-sm font-medium text-slate-300 mb-1">Nombre</label>
                         <input required type="text" placeholder="Ej: Distribuidora Automotriz CA" className="w-full bg-slate-800 border border-slate-700 text-white rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-shadow" value={formulario.nombre} onChange={(e) => asignarFormulario({ ...formulario, nombre: e.target.value })} />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-1">Contacto</label>
-                        <input type="text" placeholder="Ej: Juan Pérez" className="w-full bg-slate-800 border border-slate-700 text-white rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-shadow" value={formulario.contacto} onChange={(e) => asignarFormulario({ ...formulario, contacto: e.target.value })} />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-1">Tel&eacute;fono</label>
+                        <label className="block text-sm font-medium text-slate-300 mb-1">Teléfono</label>
                         <input type="text" placeholder="Ej: 0414-1234567" className="w-full bg-slate-800 border border-slate-700 text-white rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-shadow" value={formulario.telefono} onChange={(e) => asignarFormulario({ ...formulario, telefono: e.target.value })} />
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-slate-300 mb-1">Email</label>
                         <input type="email" placeholder="Ej: ventas@distribuidora.com" className="w-full bg-slate-800 border border-slate-700 text-white rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-shadow" value={formulario.email} onChange={(e) => asignarFormulario({ ...formulario, email: e.target.value })} />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-1">Direcci&oacute;n</label>
-                        <input type="text" placeholder="Ej: Av. Principal, Local 4" className="w-full bg-slate-800 border border-slate-700 text-white rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-shadow" value={formulario.direccion} onChange={(e) => asignarFormulario({ ...formulario, direccion: e.target.value })} />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-1">Estado</label>
-                        <select
-                            className="w-full bg-slate-800 border border-slate-700 text-white rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-shadow"
-                            value={formulario.estado}
-                            onChange={(e) => asignarFormulario({ ...formulario, estado: e.target.value as "Activo" | "Inactivo" })}
-                        >
-                            <option value="Activo">Activo</option>
-                            <option value="Inactivo">Inactivo</option>
-                        </select>
                     </div>
                     <div className="flex justify-end gap-3 mt-4">
                         <button type="button" onClick={() => asignarModalAbierto(false)} className="px-4 py-2 border border-slate-600 rounded-md text-slate-300 hover:bg-slate-800 font-medium transition-colors cursor-pointer">
