@@ -30,7 +30,8 @@ const mapear = (p: ProveedorBackend): Proveedor => ({
 export async function obtenerProveedores(): Promise<Proveedor[]> {
     const res = await fetch(BASE);
     if (!res.ok) throw new Error('Error al obtener proveedores');
-    const datos: ProveedorBackend[] = await res.json();
+    const json = await res.json();
+    const datos: ProveedorBackend[] = json.details;
     return datos.map(mapear);
 }
 
@@ -46,7 +47,8 @@ export async function crearProveedor(datos: Omit<Proveedor, 'id'>): Promise<Prov
         }),
     });
     if (!res.ok) throw new Error('Error al crear proveedor');
-    return mapear(await res.json());
+    const json = await res.json();
+    return mapear(json.details);
 }
 
 export async function actualizarProveedor(id: string, datos: Omit<Proveedor, 'id'>): Promise<Proveedor> {
@@ -57,10 +59,12 @@ export async function actualizarProveedor(id: string, datos: Omit<Proveedor, 'id
             nombre: datos.nombre,
             telefono: datos.telefono,
             email: datos.email,
+            activo: datos.activo,
         }),
     });
     if (!res.ok) throw new Error('Error al actualizar proveedor');
-    return mapear(await res.json());
+    const json = await res.json();
+    return mapear(json.details);
 }
 
 export async function eliminarProveedor(id: string): Promise<void> {

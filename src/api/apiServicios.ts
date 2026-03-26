@@ -34,7 +34,8 @@ const mapear = (s: ServicioBackend): Servicio => ({
 export async function obtenerServicios(): Promise<Servicio[]> {
     const res = await fetch(BASE);
     if (!res.ok) throw new Error('Error al obtener servicios');
-    const datos: ServicioBackend[] = await res.json();
+    const json = await res.json();
+    const datos: ServicioBackend[] = json.details;
     return datos.map(mapear);
 }
 
@@ -51,7 +52,8 @@ export async function crearServicio(datos: Omit<Servicio, 'id'>): Promise<Servic
         }),
     });
     if (!res.ok) throw new Error('Error al crear servicio');
-    return mapear(await res.json());
+    const json = await res.json();
+    return mapear(json.details);
 }
 
 export async function actualizarServicio(id: string, datos: Omit<Servicio, 'id'>): Promise<Servicio> {
@@ -67,7 +69,8 @@ export async function actualizarServicio(id: string, datos: Omit<Servicio, 'id'>
         }),
     });
     if (!res.ok) throw new Error('Error al actualizar servicio');
-    return mapear(await res.json());
+    const json = await res.json();
+    return mapear(json.details);
 }
 
 export async function eliminarServicio(id: string): Promise<void> {

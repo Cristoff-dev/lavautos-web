@@ -215,8 +215,7 @@ export const Proveedores = () => {
                             required
                             type="text"
                             placeholder="Ej: J-12345678-9"
-                            disabled={!!proveedorEditando}
-                            className="w-full bg-slate-800 border border-slate-700 text-white rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full bg-slate-800 border border-slate-700 text-white rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-shadow"
                             value={formulario.rif}
                             onChange={(e) => asignarFormulario({ ...formulario, rif: e.target.value })}
                         />
