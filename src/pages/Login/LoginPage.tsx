@@ -53,9 +53,9 @@ function LoginPage() {
                         </label>
                         <input
                             className="bg-slate-800 border border-slate-700 text-white p-3 rounded-xl focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all placeholder:text-slate-600"
-                            type="email"
+                            type="text"
                             required
-                            placeholder="correo@ejemplo.com"
+                            placeholder="Ej: admin"
                             value={email}
                             onChange={(e) => asignarEmail(e.target.value)}
                         />

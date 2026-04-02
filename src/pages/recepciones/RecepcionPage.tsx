@@ -1,7 +1,54 @@
 import { useState } from "react";
+import { TablaGenerica } from "../../components/UI/Tabla";
 
 export const RecepcionPage = () => {
     const [view, setView] = useState<'activos' | 'eliminados'>('activos');
+
+    const columnasRecepcion = [
+    { 
+        llave: "combo" as const, 
+        etiqueta: "Nombre Combo",
+        render: (v: any) => <span className="font-mono text-cyan-400 font-bold uppercase tracking-widest">{v.combo}</span>
+    },
+    { 
+        llave: "costoBs" as const, 
+        etiqueta: "Costo",
+        render: (v: any) => <span className="text-slate-200">{v.costoBs} BS - {v.costoUsd}$</span>
+    },
+    { 
+        llave: "vehiculo" as const, 
+        etiqueta: "Vehículo",
+        render: (v: any) => (
+            <span className="px-2 py-1 bg-blue-500/10 text-blue-400 rounded-md text-[10px] font-bold">{v.vehiculo}</span>
+        )
+    },
+    { 
+        llave: "estado" as const, 
+        etiqueta: "Estado",
+        render: (v: any) => (
+            <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase italic ${
+                v.estado === 'COMPLETADO' ? 'bg-green-500/10 text-green-500' : 'bg-yellow-500/10 text-yellow-500'
+            }`}>
+                {v.estado}
+            </span>
+        )
+    },
+    {
+        llave: "id" as const,
+        etiqueta: "Acciones",
+        render: (v: any) => (
+            <div className="flex justify-center gap-2">
+                <button onClick={() => console.log(v)} title="Editar" className="p-2 hover:bg-cyan-500/20 text-slate-400 hover:text-cyan-400 rounded-lg transition-all text-lg">📝</button>
+                <button title="Eliminar" className="p-2 hover:bg-red-500/20 text-slate-400 hover:text-red-500 rounded-lg transition-all text-lg">🗑️</button>
+            </div>
+        )
+    }
+  ];
+
+  // 2. Datos de ejemplo
+  const datosRecepcion = [
+    { id: 1, combo: "FULL'COMBO", costoBs: 8200, costoUsd: 20, vehiculo: "GTX2026", estado: "EN PROCESO" }
+  ];
 
     return (
         <div className="animate-fadeIn">
@@ -23,36 +70,13 @@ export const RecepcionPage = () => {
             </div>
 
             <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl relative">
-                <table className="w-full text-left">
-                    <thead className="bg-slate-800/50 text-slate-400 text-[10px] font-black uppercase tracking-widest">
-                        <tr>
-                            <th className="px-6 py-4">Nombre Combo</th>
-                            <th className="px-6 py-4">Costo</th>
-                            <th className="px-6 py-4">Vehiculo</th>
-                            <th className="px-6 py-4">Estado</th>
-                            <th className="px-6 py-4 text-center">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-800">
-                        <tr className="hover:bg-slate-800/30 transition-colors group">
-                            <td className="px-6 py-4 font-mono text-cyan-400 font-bold tracking-widest">FULL'COMBO</td>
-                            <td className="px-6 py-4 text-slate-200">8200 BS - 20$</td>
-                            <td className="px-6 py-4">
-                                <span className="px-2 py-1 bg-blue-500/10 text-blue-400 rounded-md text-[10px] font-bold">GTX2026</span>
-                            </td>
-                            <td className="px-6 py-4">
-                                <span className="px-2 py-1 bg-green-500/10 text-green-500 rounded-md text-[10px] font-bold uppercase italic">EN PROCESO</span>
-                            </td>
-                            <td className="px-6 py-4">
-                                <div className="flex justify-center gap-2">
-                                    <button title="Editar" className="p-2 hover:bg-cyan-500/20 text-slate-400 hover:text-cyan-400 rounded-lg transition-all text-lg">📝</button>
-                                    <button title="Eliminar" className="p-2 hover:bg-red-500/20 text-slate-400 hover:text-red-500 rounded-lg transition-all text-lg">🗑️</button>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+              
             </div>
+            <TablaGenerica 
+        columnas={columnasRecepcion} 
+        datos={datosRecepcion} 
+        mensajeVacio="No hay registros."
+    />
         </div>
     );
 }
