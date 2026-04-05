@@ -1,4 +1,47 @@
-node_modules/
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependencies
+node_modules
+
+# Environment files (never commit secrets)
 .env
-build/
-dist/
+.env.local
+.env.*.local
+# common variants
+.env.development.local
+.env.test.local
+.env.production.local
+
+# API clients / tools
+postman/
+
+# Build output
+dist
+dist-ssr
+coverage/
+*.tsbuildinfo
+
+# Misc
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+lint_output_utf8.txt
+lint_output.txt
+tsc_output_utf8.txt
+tsc_output.txt
