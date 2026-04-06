@@ -149,9 +149,9 @@ export const Proveedores = () => {
                             </tr>
                         ) : (
                             proveedores.map((proveedor) => (
-                                <tr key={proveedor.id} className={`hover:bg-slate-800/30 transition-colors group ${!proveedor.activo ? "opacity-50" : ""}`}>
+                                <tr key={proveedor.id} className={`hover:bg-slate-800/30 transition-colors group ${!proveedor.activo ? "bg-slate-800/20" : ""}`}>
                                     {columnas.map((columna) => (
-                                        <td key={columna.llave} className={`px-6 py-4 ${columna.llave === "nombre" ? "font-mono text-cyan-400 font-bold tracking-widest" : "text-slate-200"}`}>
+                                        <td key={columna.llave} className={`px-6 py-4 ${!proveedor.activo && columna.llave !== "activo" ? "opacity-50" : ""} ${columna.llave === "nombre" ? "font-mono text-cyan-400 font-bold tracking-widest" : "text-slate-200"}`}>
                                             {(() => {
                                                 const valor = proveedor[columna.llave];
                                                 if (columna.llave === "activo") {

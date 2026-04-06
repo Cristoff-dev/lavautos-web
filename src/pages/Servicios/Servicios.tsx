@@ -16,12 +16,13 @@ export const Servicios = () => {
     const [modalAbierto, asignarModalAbierto] = useState(false);
     const [servicioEditando, asignarServicioEditando] = useState<Servicio | null>(null);
 
-    const [formulario, asignarFormulario] = useState<{nombre: string, precio: number | "", duracionMinutos: number | "", descripcion: string, tipoVehiculo: string}>({
+    const [formulario, asignarFormulario] = useState<{nombre: string, precio: number | "", duracionMinutos: number | "", descripcion: string, tipoVehiculo: string, activo: boolean}>({
         nombre: "",
         precio: "",
         duracionMinutos: "",
         descripcion: "",
         tipoVehiculo: "SEDAN",
+        activo: true,
     });
 
     const columnas: { llave: keyof Servicio; etiqueta: string }[] = [
@@ -30,6 +31,7 @@ export const Servicios = () => {
         { llave: "precio", etiqueta: "Precio ($)" },
         { llave: "duracionMinutos", etiqueta: "Duraci\u00f3n (min)" },
         { llave: "descripcion", etiqueta: "Descripci\u00f3n" },
+        { llave: "activo", etiqueta: "Estado" },
     ];
 
     const cargarServicios = async () => {
@@ -37,7 +39,7 @@ export const Servicios = () => {
             asignarCargando(true);
             asignarError(null);
             const datos = await obtenerServicios();
-            asignarServicios(datos.sort((a, b) => parseInt(b.id) - parseInt(a.id)));
+            asignarServicios(datos.sort((a, b) => (a.activo === b.activo ? 0 : a.activo ? -1 : 1)));
         } catch (err) {
             asignarError("No se pudo conectar con el servidor. Verifique que el backend esté activo.");
             console.error(err);
@@ -65,7 +67,7 @@ export const Servicios = () => {
             }
             asignarModalAbierto(false);
             const datos = await obtenerServicios();
-            asignarServicios(datos.sort((a, b) => parseInt(b.id) - parseInt(a.id)));
+            asignarServicios(datos.sort((a, b) => (a.activo === b.activo ? 0 : a.activo ? -1 : 1)));
         } catch (err) {
             console.error(err);
             alert("Error al guardar el servicio. Intente de nuevo.");
@@ -74,7 +76,7 @@ export const Servicios = () => {
 
     const abrirModalCrear = () => {
         asignarServicioEditando(null);
-        asignarFormulario({ nombre: "", precio: "", duracionMinutos: "", descripcion: "", tipoVehiculo: "SEDAN" });
+        asignarFormulario({ nombre: "", precio: "", duracionMinutos: "", descripcion: "", tipoVehiculo: "SEDAN", activo: true });
         asignarModalAbierto(true);
     };
 
@@ -86,6 +88,7 @@ export const Servicios = () => {
             duracionMinutos: servicio.duracionMinutos,
             descripcion: servicio.descripcion ?? "",
             tipoVehiculo: servicio.tipoVehiculo,
+            activo: servicio.activo,
         });
         asignarModalAbierto(true);
     };
@@ -95,10 +98,20 @@ export const Servicios = () => {
         try {
             await eliminarServicioApi(id);
             const datos = await obtenerServicios();
-            asignarServicios(datos.sort((a, b) => parseInt(b.id) - parseInt(a.id)));
+            asignarServicios(datos.sort((a, b) => (a.activo === b.activo ? 0 : a.activo ? -1 : 1)));
         } catch (err) {
             console.error(err);
             alert("Error al eliminar el servicio.");
+        }
+    };
+
+    const cambiarActivo = async (servicio: Servicio, activo: boolean) => {
+        try {
+            await actualizarServicio(servicio.id, { ...servicio, activo });
+            await cargarServicios();
+        } catch (err) {
+            console.error(err);
+            alert("Error al cambiar el estado del servicio.");
         }
     };
 
@@ -146,9 +159,9 @@ export const Servicios = () => {
                             </tr>
                         ) : (
                             servicios.map((servicio) => (
-                                <tr key={servicio.id} className="hover:bg-slate-800/30 transition-colors group">
+                                <tr key={servicio.id} className={`hover:bg-slate-800/30 transition-colors group ${!servicio.activo ? "bg-slate-800/20" : ""}`}>
                                     {columnas.map((columna) => (
-                                        <td key={columna.llave} className={`px-6 py-4 ${columna.llave === "nombre" ? "font-mono text-cyan-400 font-bold tracking-widest" : "text-slate-200"}`}>
+                                        <td key={columna.llave} className={`px-6 py-4 ${!servicio.activo && columna.llave !== "activo" ? "opacity-50" : ""} ${columna.llave === "nombre" ? "font-mono text-cyan-400 font-bold tracking-widest" : "text-slate-200"}`}>
                                             {(() => {
                                                 const valor = servicio[columna.llave];
                                                 if (columna.llave === "tipoVehiculo") {
@@ -159,7 +172,20 @@ export const Servicios = () => {
                                                         </span>
                                                     );
                                                 }
-                                                return valor;
+                                                if (columna.llave === "activo") {
+                                                    const esActivo = valor as boolean;
+                                                    return (
+                                                        <select
+                                                            value={esActivo ? "Activo" : "Inactivo"}
+                                                            onChange={(e) => cambiarActivo(servicio, e.target.value === "Activo")}
+                                                            className={`bg-slate-800 border ${esActivo ? "border-green-500/50 text-green-400" : "border-red-500/50 text-red-400"} rounded px-2 py-1 outline-none cursor-pointer focus:ring-1 focus:ring-cyan-500 transition-colors text-sm font-medium`}
+                                                        >
+                                                            <option value="Activo" className="text-green-400 bg-slate-900">Activo</option>
+                                                            <option value="Inactivo" className="text-red-400 bg-slate-900">Inactivo</option>
+                                                        </select>
+                                                    );
+                                                }
+                                                return String(valor ?? "");
                                             })()}
                                         </td>
                                     ))}

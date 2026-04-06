@@ -56,6 +56,7 @@ export async function actualizarProveedor(id: string, datos: Omit<Proveedor, 'id
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+            rif: datos.rif,
             nombre: datos.nombre,
             telefono: datos.telefono,
             email: datos.email,
