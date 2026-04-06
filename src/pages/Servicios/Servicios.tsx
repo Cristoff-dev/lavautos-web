@@ -15,6 +15,7 @@ export const Servicios = () => {
     const [error, asignarError] = useState<string | null>(null);
     const [modalAbierto, asignarModalAbierto] = useState(false);
     const [servicioEditando, asignarServicioEditando] = useState<Servicio | null>(null);
+    const [view, setView] = useState<'activos' | 'eliminados'>('activos');
 
     const [formulario, asignarFormulario] = useState<{nombre: string, precio: number | "", duracionMinutos: number | "", descripcion: string, tipoVehiculo: string, activo: boolean}>({
         nombre: "",
@@ -31,7 +32,6 @@ export const Servicios = () => {
         { llave: "precio", etiqueta: "Precio ($)" },
         { llave: "duracionMinutos", etiqueta: "Duraci\u00f3n (min)" },
         { llave: "descripcion", etiqueta: "Descripci\u00f3n" },
-        { llave: "activo", etiqueta: "Estado" },
     ];
 
     const cargarServicios = async () => {
@@ -125,6 +125,10 @@ export const Servicios = () => {
                     <h2 className="text-white text-3xl font-black uppercase tracking-tighter">
                         Gesti&oacute;n de <span className="text-cyan-400">Servicios</span>
                     </h2>
+                    <div className="flex gap-4 mt-2">
+                        <button onClick={() => setView('activos')} className={`text-xs font-bold uppercase transition-all ${view === 'activos' ? "text-cyan-400 border-b-2 border-cyan-400" : "text-slate-500 hover:text-slate-300"}`}>Activos</button>
+                        <button onClick={() => setView('eliminados')} className={`text-xs font-bold uppercase transition-all ${view === 'eliminados' ? "text-red-500 border-b-2 border-red-500" : "text-slate-500 hover:text-slate-300"}`}>Papelera</button>
+                    </div>
                 </div>
 
                 <div className="flex gap-3 w-full md:w-auto">
@@ -151,17 +155,17 @@ export const Servicios = () => {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-800">
-                        {servicios.length === 0 ? (
+                        {servicios.filter(s => view === 'activos' ? s.activo : !s.activo).length === 0 ? (
                             <tr>
                                 <td colSpan={columnas.length + 1} className="px-6 py-8 text-center text-slate-500">
-                                    No hay servicios disponibles
+                                    No hay servicios {view}
                                 </td>
                             </tr>
                         ) : (
-                            servicios.map((servicio) => (
-                                <tr key={servicio.id} className={`hover:bg-slate-800/30 transition-colors group ${!servicio.activo ? "bg-slate-800/20" : ""}`}>
+                            servicios.filter(s => view === 'activos' ? s.activo : !s.activo).map((servicio) => (
+                                <tr key={servicio.id} className="hover:bg-slate-800/30 transition-colors group">
                                     {columnas.map((columna) => (
-                                        <td key={columna.llave} className={`px-6 py-4 ${!servicio.activo && columna.llave !== "activo" ? "opacity-50" : ""} ${columna.llave === "nombre" ? "font-mono text-cyan-400 font-bold tracking-widest" : "text-slate-200"}`}>
+                                        <td key={columna.llave} className={`px-6 py-4 ${columna.llave === "nombre" ? "font-mono text-cyan-400 font-bold tracking-widest" : "text-slate-200"}`}>
                                             {(() => {
                                                 const valor = servicio[columna.llave];
                                                 if (columna.llave === "tipoVehiculo") {
@@ -170,19 +174,6 @@ export const Servicios = () => {
                                                         <span className="bg-slate-800 text-cyan-300 px-2 py-1 rounded text-xs font-bold tracking-wider">
                                                             {dict[valor as string] || valor}
                                                         </span>
-                                                    );
-                                                }
-                                                if (columna.llave === "activo") {
-                                                    const esActivo = valor as boolean;
-                                                    return (
-                                                        <select
-                                                            value={esActivo ? "Activo" : "Inactivo"}
-                                                            onChange={(e) => cambiarActivo(servicio, e.target.value === "Activo")}
-                                                            className={`bg-slate-800 border ${esActivo ? "border-green-500/50 text-green-400" : "border-red-500/50 text-red-400"} rounded px-2 py-1 outline-none cursor-pointer focus:ring-1 focus:ring-cyan-500 transition-colors text-sm font-medium`}
-                                                        >
-                                                            <option value="Activo" className="text-green-400 bg-slate-900">Activo</option>
-                                                            <option value="Inactivo" className="text-red-400 bg-slate-900">Inactivo</option>
-                                                        </select>
                                                     );
                                                 }
                                                 return String(valor ?? "");
@@ -199,14 +190,25 @@ export const Servicios = () => {
                                                         </svg>
                                                     </div>
                                                 }
-                                                items={[
+                                                items={view === 'activos' ? [
                                                     {
                                                         label: "Editar",
                                                         onClick: () => abrirModalEditar(servicio),
                                                         className: "text-cyan-400 hover:text-cyan-300"
                                                     },
                                                     {
-                                                        label: "Eliminar",
+                                                        label: "Mover a papelera",
+                                                        onClick: () => cambiarActivo(servicio, false),
+                                                        className: "text-red-400 hover:text-red-300"
+                                                    }
+                                                ] : [
+                                                    {
+                                                        label: "Restaurar",
+                                                        onClick: () => cambiarActivo(servicio, true),
+                                                        className: "text-green-400 hover:text-green-300"
+                                                    },
+                                                    {
+                                                        label: "Eliminar Definitivamente",
                                                         onClick: () => manejarEliminar(servicio.id),
                                                         className: "text-red-400 hover:text-red-300"
                                                     }
