@@ -19,7 +19,7 @@ const navigate = useNavigate();
         className="w-10 h-10   rounded-full object-cover border-2 border-cyan-500/50 shadow-[0_0_15px_rgba(34,211,238,0.3)]" 
         />
 
-            ACUÁTICO <span className="text-white">SOFT</span>
+            LAVADO <span className="text-white">AUTOS</span>
         </div>
 
       <nav className="flex items-center gap-6">

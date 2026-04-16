@@ -16,7 +16,7 @@ interface ProveedorBackend {
     activo: boolean;
 }
 
-const BASE = `${import.meta.env.VITE_API_URL}/providers`;
+const BASE = "http://localhost:3000/api/lavautos/providers"
 
 const mapear = (p: ProveedorBackend): Proveedor => ({
     id: String(p.id),

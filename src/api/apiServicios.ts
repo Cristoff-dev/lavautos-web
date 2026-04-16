@@ -21,7 +21,7 @@ interface ServicioBackend {
     tipoVehiculo: string;
 }
 
-const BASE = `${import.meta.env.VITE_API_URL}/services`;
+const BASE = "http://localhost:3000/api/lavautos/services"
 
 const mapear = (s: ServicioBackend): Servicio => ({
     id: String(s.id),
