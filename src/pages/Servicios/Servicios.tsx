@@ -305,6 +305,7 @@ export const Servicios = () => {
                             placeholder="Ej: 500"
                             className="w-full bg-slate-800 border border-slate-700 text-white rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-shadow"
                             value={formulario.precio}
+                            onKeyDown={(e) => { if (['e', 'E', '+', '-'].includes(e.key)) e.preventDefault(); }}
                             onChange={(e) => asignarFormulario({ ...formulario, precio: e.target.value === "" ? "" : parseFloat(e.target.value) })}
                         />
                     </div>
@@ -318,6 +319,7 @@ export const Servicios = () => {
                             placeholder="Ej: 45"
                             className="w-full bg-slate-800 border border-slate-700 text-white rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-shadow"
                             value={formulario.duracionMinutos}
+                            onKeyDown={(e) => { if (['e', 'E', '+', '-', '.', ','].includes(e.key)) e.preventDefault(); }}
                             onChange={(e) => asignarFormulario({ ...formulario, duracionMinutos: e.target.value === "" ? "" : parseInt(e.target.value) })}
                         />
                     </div>
