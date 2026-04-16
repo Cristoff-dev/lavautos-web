@@ -6,7 +6,7 @@ import { login } from '../../api/apiAuth';
 
 function LoginPage() {
     const navigate = useNavigate();
-    const [email, asignarEmail] = useState('');
+    const [username, asignarUsername] = useState('');
     const [password, asignarPassword] = useState('');
     const [errorMsg, asignarError] = useState('');
     const [cargando, asignarCargando] = useState(false);
@@ -16,7 +16,7 @@ function LoginPage() {
         asignarError('');
         asignarCargando(true);
         try {
-            const resultado = await login(email, password);
+            const resultado = await login(username, password);
             localStorage.setItem('token', resultado.token);
             localStorage.setItem('usuario', JSON.stringify(resultado.user));
             navigate('/inicioprivado');
@@ -56,8 +56,8 @@ function LoginPage() {
                             type="text"
                             required
                             placeholder="Ej: admin"
-                            value={email}
-                            onChange={(e) => asignarEmail(e.target.value)}
+                            value={username}
+                            onChange={(e) => asignarUsername(e.target.value)}
                         />
                     </div>
 

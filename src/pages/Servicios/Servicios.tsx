@@ -15,13 +15,15 @@ export const Servicios = () => {
     const [error, asignarError] = useState<string | null>(null);
     const [modalAbierto, asignarModalAbierto] = useState(false);
     const [servicioEditando, asignarServicioEditando] = useState<Servicio | null>(null);
+    const [view, setView] = useState<'activos' | 'eliminados'>('activos');
 
-    const [formulario, asignarFormulario] = useState<{nombre: string, precio: number | "", duracionMinutos: number | "", descripcion: string, tipoVehiculo: string}>({
+    const [formulario, asignarFormulario] = useState<{nombre: string, precio: number | "", duracionMinutos: number | "", descripcion: string, tipoVehiculo: string, activo: boolean}>({
         nombre: "",
         precio: "",
         duracionMinutos: "",
         descripcion: "",
         tipoVehiculo: "SEDAN",
+        activo: true,
     });
 
     const columnas: { llave: keyof Servicio; etiqueta: string }[] = [
@@ -37,7 +39,7 @@ export const Servicios = () => {
             asignarCargando(true);
             asignarError(null);
             const datos = await obtenerServicios();
-            asignarServicios(datos.sort((a, b) => parseInt(b.id) - parseInt(a.id)));
+            asignarServicios(datos.sort((a, b) => (a.activo === b.activo ? 0 : a.activo ? -1 : 1)));
         } catch (err) {
             asignarError("No se pudo conectar con el servidor. Verifique que el backend esté activo.");
             console.error(err);
@@ -65,7 +67,7 @@ export const Servicios = () => {
             }
             asignarModalAbierto(false);
             const datos = await obtenerServicios();
-            asignarServicios(datos.sort((a, b) => parseInt(b.id) - parseInt(a.id)));
+            asignarServicios(datos.sort((a, b) => (a.activo === b.activo ? 0 : a.activo ? -1 : 1)));
         } catch (err) {
             console.error(err);
             alert("Error al guardar el servicio. Intente de nuevo.");
@@ -74,7 +76,7 @@ export const Servicios = () => {
 
     const abrirModalCrear = () => {
         asignarServicioEditando(null);
-        asignarFormulario({ nombre: "", precio: "", duracionMinutos: "", descripcion: "", tipoVehiculo: "SEDAN" });
+        asignarFormulario({ nombre: "", precio: "", duracionMinutos: "", descripcion: "", tipoVehiculo: "SEDAN", activo: true });
         asignarModalAbierto(true);
     };
 
@@ -86,6 +88,7 @@ export const Servicios = () => {
             duracionMinutos: servicio.duracionMinutos,
             descripcion: servicio.descripcion ?? "",
             tipoVehiculo: servicio.tipoVehiculo,
+            activo: servicio.activo,
         });
         asignarModalAbierto(true);
     };
@@ -95,10 +98,20 @@ export const Servicios = () => {
         try {
             await eliminarServicioApi(id);
             const datos = await obtenerServicios();
-            asignarServicios(datos.sort((a, b) => parseInt(b.id) - parseInt(a.id)));
+            asignarServicios(datos.sort((a, b) => (a.activo === b.activo ? 0 : a.activo ? -1 : 1)));
         } catch (err) {
             console.error(err);
             alert("Error al eliminar el servicio.");
+        }
+    };
+
+    const cambiarActivo = async (servicio: Servicio, activo: boolean) => {
+        try {
+            await actualizarServicio(servicio.id, { ...servicio, activo });
+            await cargarServicios();
+        } catch (err) {
+            console.error(err);
+            alert("Error al cambiar el estado del servicio.");
         }
     };
 
@@ -112,6 +125,10 @@ export const Servicios = () => {
                     <h2 className="text-white text-3xl font-black uppercase tracking-tighter">
                         Gesti&oacute;n de <span className="text-cyan-400">Servicios</span>
                     </h2>
+                    <div className="flex gap-4 mt-2">
+                        <button onClick={() => setView('activos')} className={`text-xs font-bold uppercase transition-all ${view === 'activos' ? "text-cyan-400 border-b-2 border-cyan-400" : "text-slate-500 hover:text-slate-300"}`}>Activos</button>
+                        <button onClick={() => setView('eliminados')} className={`text-xs font-bold uppercase transition-all ${view === 'eliminados' ? "text-red-500 border-b-2 border-red-500" : "text-slate-500 hover:text-slate-300"}`}>Papelera</button>
+                    </div>
                 </div>
 
                 <div className="flex gap-3 w-full md:w-auto">
@@ -138,14 +155,14 @@ export const Servicios = () => {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-800">
-                        {servicios.length === 0 ? (
+                        {servicios.filter(s => view === 'activos' ? s.activo : !s.activo).length === 0 ? (
                             <tr>
                                 <td colSpan={columnas.length + 1} className="px-6 py-8 text-center text-slate-500">
-                                    No hay servicios disponibles
+                                    No hay servicios {view}
                                 </td>
                             </tr>
                         ) : (
-                            servicios.map((servicio) => (
+                            servicios.filter(s => view === 'activos' ? s.activo : !s.activo).map((servicio) => (
                                 <tr key={servicio.id} className="hover:bg-slate-800/30 transition-colors group">
                                     {columnas.map((columna) => (
                                         <td key={columna.llave} className={`px-6 py-4 ${columna.llave === "nombre" ? "font-mono text-cyan-400 font-bold tracking-widest" : "text-slate-200"}`}>
@@ -159,7 +176,7 @@ export const Servicios = () => {
                                                         </span>
                                                     );
                                                 }
-                                                return valor;
+                                                return String(valor ?? "");
                                             })()}
                                         </td>
                                     ))}
@@ -173,14 +190,25 @@ export const Servicios = () => {
                                                         </svg>
                                                     </div>
                                                 }
-                                                items={[
+                                                items={view === 'activos' ? [
                                                     {
                                                         label: "Editar",
                                                         onClick: () => abrirModalEditar(servicio),
                                                         className: "text-cyan-400 hover:text-cyan-300"
                                                     },
                                                     {
-                                                        label: "Eliminar",
+                                                        label: "Mover a papelera",
+                                                        onClick: () => cambiarActivo(servicio, false),
+                                                        className: "text-red-400 hover:text-red-300"
+                                                    }
+                                                ] : [
+                                                    {
+                                                        label: "Restaurar",
+                                                        onClick: () => cambiarActivo(servicio, true),
+                                                        className: "text-green-400 hover:text-green-300"
+                                                    },
+                                                    {
+                                                        label: "Eliminar Definitivamente",
                                                         onClick: () => manejarEliminar(servicio.id),
                                                         className: "text-red-400 hover:text-red-300"
                                                     }

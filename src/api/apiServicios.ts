@@ -6,6 +6,7 @@ export interface Servicio {
     duracionMinutos: number;
     descripcion?: string;
     tipoVehiculo: string;
+    activo: boolean;
 }
 
 // Tipo que devuelve el backend (inglés/mix)
@@ -20,7 +21,7 @@ interface ServicioBackend {
     tipoVehiculo: string;
 }
 
-const BASE = `${import.meta.env.VITE_API_URL}/services`;
+const BASE = "http://localhost:3000/api/lavautos/services"
 
 const mapear = (s: ServicioBackend): Servicio => ({
     id: String(s.id),
@@ -29,6 +30,7 @@ const mapear = (s: ServicioBackend): Servicio => ({
     duracionMinutos: s.duracionMinutos ?? 0,
     descripcion: s.descripcion ?? undefined,
     tipoVehiculo: s.tipoVehiculo,
+    activo: s.activo,
 });
 
 export async function obtenerServicios(): Promise<Servicio[]> {
@@ -49,6 +51,7 @@ export async function crearServicio(datos: Omit<Servicio, 'id'>): Promise<Servic
             duracionMinutos: datos.duracionMinutos,
             descripcion: datos.descripcion,
             tipoVehiculo: datos.tipoVehiculo,
+            activo: datos.activo !== undefined ? datos.activo : true,
         }),
     });
     if (!res.ok) throw new Error('Error al crear servicio');
@@ -66,6 +69,7 @@ export async function actualizarServicio(id: string, datos: Omit<Servicio, 'id'>
             duracionMinutos: datos.duracionMinutos,
             descripcion: datos.descripcion,
             tipoVehiculo: datos.tipoVehiculo,
+            activo: datos.activo,
         }),
     });
     if (!res.ok) throw new Error('Error al actualizar servicio');
