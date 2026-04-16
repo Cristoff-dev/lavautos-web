@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Modal } from "../../components/UI/Modal";
-import { DropdownMenu } from "../../components/UI/DropdownMenu";
 import {
     type Servicio,
     obtenerServicios,
@@ -16,6 +15,8 @@ export const Servicios = () => {
     const [modalAbierto, asignarModalAbierto] = useState(false);
     const [servicioEditando, asignarServicioEditando] = useState<Servicio | null>(null);
     const [view, setView] = useState<'activos' | 'eliminados'>('activos');
+    const [busqueda, setBusqueda] = useState("");
+    const [errorFormulario, asignarErrorFormulario] = useState<string | null>(null);
 
     const [formulario, asignarFormulario] = useState<{nombre: string, precio: number | "", duracionMinutos: number | "", descripcion: string, tipoVehiculo: string, activo: boolean}>({
         nombre: "",
@@ -54,6 +55,37 @@ export const Servicios = () => {
 
     const manejarEnvio = async (e: React.FormEvent) => {
         e.preventDefault();
+        asignarErrorFormulario(null);
+
+        if (!formulario.nombre.trim()) {
+            asignarErrorFormulario("Por favor, ingresa el nombre del servicio.");
+            return;
+        }
+        if (formulario.precio === "") {
+            asignarErrorFormulario("Debes indicar un precio. Si es gratuito, coloca 0.");
+            return;
+        }
+        if (Number(formulario.precio) < 0) {
+            asignarErrorFormulario("El precio del servicio no puede ser un valor negativo.");
+            return;
+        }
+        if (formulario.duracionMinutos === "") {
+            asignarErrorFormulario("No olvides indicar el tiempo estimado que tomará este servicio.");
+            return;
+        }
+        if (Number(formulario.duracionMinutos) <= 0) {
+            asignarErrorFormulario("La duración debe ser al menos de 1 minuto.");
+            return;
+        }
+        if (Number(formulario.duracionMinutos) > 1440) {
+            asignarErrorFormulario("La duración del servicio es demasiado larga (máximo 24 horas - 1440 minutos).");
+            return;
+        }
+        if (!formulario.descripcion.trim()) {
+            asignarErrorFormulario("Es necesario dejar una breve descripción explicando en qué consiste el servicio.");
+            return;
+        }
+
         try {
             const datosGuardar = {
                 ...formulario,
@@ -70,17 +102,19 @@ export const Servicios = () => {
             asignarServicios(datos.sort((a, b) => (a.activo === b.activo ? 0 : a.activo ? -1 : 1)));
         } catch (err) {
             console.error(err);
-            alert("Error al guardar el servicio. Intente de nuevo.");
+            asignarErrorFormulario("Error al guardar el servicio. Intente de nuevo.");
         }
     };
 
     const abrirModalCrear = () => {
+        asignarErrorFormulario(null);
         asignarServicioEditando(null);
         asignarFormulario({ nombre: "", precio: "", duracionMinutos: "", descripcion: "", tipoVehiculo: "SEDAN", activo: true });
         asignarModalAbierto(true);
     };
 
     const abrirModalEditar = (servicio: Servicio) => {
+        asignarErrorFormulario(null);
         asignarServicioEditando(servicio);
         asignarFormulario({
             nombre: servicio.nombre,
@@ -115,6 +149,24 @@ export const Servicios = () => {
         }
     };
 
+    const serviciosFiltrados = servicios.filter(s => {
+        const coincideEstado = view === 'activos' ? s.activo : !s.activo;
+        if (!coincideEstado) return false;
+        if (busqueda.trim() === "") return true;
+        const searchLow = busqueda.toLowerCase();
+        
+        const dictCampos: Record<string, string> = { SEDAN: "Sedán", CAMIONETA: "Camioneta", MOTO: "Moto", CAMION: "Camión" };
+        const tipoVehiculo = dictCampos[s.tipoVehiculo] || s.tipoVehiculo;
+        
+        return (
+            (s.nombre?.toLowerCase() || "").includes(searchLow) ||
+            (s.descripcion?.toLowerCase() || "").includes(searchLow) ||
+            (tipoVehiculo.toLowerCase()).includes(searchLow) ||
+            String(s.precio).includes(searchLow) ||
+            String(s.duracionMinutos).includes(searchLow)
+        );
+    });
+
     if (cargando) return <div className="p-8 text-center text-slate-400">Cargando datos...</div>;
     if (error) return <div className="p-8 text-center text-red-400">{error}</div>;
 
@@ -132,7 +184,13 @@ export const Servicios = () => {
                 </div>
 
                 <div className="flex gap-3 w-full md:w-auto">
-                    <input type="text" placeholder="Buscar servicio..." className="bg-slate-900 border border-slate-800 text-white px-4 py-2 rounded-xl focus:ring-1 focus:ring-cyan-500 outline-none flex-1 md:w-64" />
+                    <input 
+                        type="text" 
+                        placeholder="Buscar servicio..." 
+                        value={busqueda} 
+                        onChange={(e) => setBusqueda(e.target.value)} 
+                        className="bg-slate-900 border border-slate-800 text-white px-4 py-2 rounded-xl focus:ring-1 focus:ring-cyan-500 outline-none flex-1 md:w-64" 
+                    />
                     <button
                         onClick={abrirModalCrear}
                         className="bg-cyan-500 text-slate-900 px-6 py-2 rounded-xl font-bold hover:bg-cyan-400 transition-all"
@@ -155,14 +213,14 @@ export const Servicios = () => {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-800">
-                        {servicios.filter(s => view === 'activos' ? s.activo : !s.activo).length === 0 ? (
+                        {serviciosFiltrados.length === 0 ? (
                             <tr>
                                 <td colSpan={columnas.length + 1} className="px-6 py-8 text-center text-slate-500">
-                                    No hay servicios {view}
+                                    No hay servicios para mostrar
                                 </td>
                             </tr>
                         ) : (
-                            servicios.filter(s => view === 'activos' ? s.activo : !s.activo).map((servicio) => (
+                            serviciosFiltrados.map((servicio) => (
                                 <tr key={servicio.id} className="hover:bg-slate-800/30 transition-colors group">
                                     {columnas.map((columna) => (
                                         <td key={columna.llave} className={`px-6 py-4 ${columna.llave === "nombre" ? "font-mono text-cyan-400 font-bold tracking-widest" : "text-slate-200"}`}>
@@ -181,39 +239,18 @@ export const Servicios = () => {
                                         </td>
                                     ))}
                                     <td className="px-6 py-4">
-                                        <div className="flex justify-center">
-                                            <DropdownMenu
-                                                trigger={
-                                                    <div className="flex items-center gap-2 text-slate-400 hover:text-slate-200 cursor-pointer p-2 rounded hover:bg-slate-700 transition-colors">
-                                                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-                                                        </svg>
-                                                    </div>
-                                                }
-                                                items={view === 'activos' ? [
-                                                    {
-                                                        label: "Editar",
-                                                        onClick: () => abrirModalEditar(servicio),
-                                                        className: "text-cyan-400 hover:text-cyan-300"
-                                                    },
-                                                    {
-                                                        label: "Mover a papelera",
-                                                        onClick: () => cambiarActivo(servicio, false),
-                                                        className: "text-red-400 hover:text-red-300"
-                                                    }
-                                                ] : [
-                                                    {
-                                                        label: "Restaurar",
-                                                        onClick: () => cambiarActivo(servicio, true),
-                                                        className: "text-green-400 hover:text-green-300"
-                                                    },
-                                                    {
-                                                        label: "Eliminar Definitivamente",
-                                                        onClick: () => manejarEliminar(servicio.id),
-                                                        className: "text-red-400 hover:text-red-300"
-                                                    }
-                                                ]}
-                                            />
+                                        <div className="flex justify-center gap-2">
+                                            {view === 'activos' ? (
+                                                <>
+                                                    <button onClick={() => abrirModalEditar(servicio)} title="Editar" className="p-2 hover:bg-cyan-500/20 text-slate-400 hover:text-cyan-400 rounded-lg transition-all text-lg">📝</button>
+                                                    <button onClick={() => cambiarActivo(servicio, false)} title="Mover a papelera" className="p-2 hover:bg-red-500/20 text-slate-400 hover:text-red-500 rounded-lg transition-all text-lg">🗑️</button>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <button onClick={() => cambiarActivo(servicio, true)} title="Restaurar" className="p-2 hover:bg-green-500/20 text-slate-400 hover:text-green-400 rounded-lg transition-all text-lg">♻️</button>
+                                                    <button onClick={() => manejarEliminar(servicio.id)} title="Eliminar Definitivamente" className="p-2 hover:bg-red-500/20 text-slate-400 hover:text-red-500 rounded-lg transition-all text-lg">❌</button>
+                                                </>
+                                            )}
                                         </div>
                                     </td>
                                 </tr>
@@ -228,7 +265,12 @@ export const Servicios = () => {
                 alCerrar={() => asignarModalAbierto(false)}
                 titulo={servicioEditando ? "Editar Servicio" : "Nuevo Servicio"}
             >
-                <form onSubmit={manejarEnvio} className="flex flex-col gap-4">
+                {errorFormulario && (
+                    <div className="mb-4 p-3 bg-red-500/20 border border-red-500 rounded-md text-red-400 text-sm">
+                        {errorFormulario}
+                    </div>
+                )}
+                <form onSubmit={manejarEnvio} className="flex flex-col gap-4" noValidate>
                     <div>
                         <label className="block text-sm font-medium text-slate-300 mb-1">Nombre</label>
                         <input
@@ -272,6 +314,7 @@ export const Servicios = () => {
                             required
                             type="number"
                             min="1"
+                            max="1440"
                             placeholder="Ej: 45"
                             className="w-full bg-slate-800 border border-slate-700 text-white rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-shadow"
                             value={formulario.duracionMinutos}
@@ -279,8 +322,9 @@ export const Servicios = () => {
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-1">Descripci&oacute;n (opcional)</label>
+                        <label className="block text-sm font-medium text-slate-300 mb-1">Descripci&oacute;n</label>
                         <input
+                            required
                             type="text"
                             placeholder="Ej: Lavado exterior e interior..."
                             className="w-full bg-slate-800 border border-slate-700 text-white rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-shadow"
