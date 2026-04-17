@@ -1,14 +1,10 @@
 import { useState, useEffect } from "react";
 import { Modal } from "../../components/UI/Modal";
-import {
-    type Servicio,
-    obtenerServicios,
-    crearServicio,
-    actualizarServicio,
-    eliminarServicio as eliminarServicioApi,
-} from "../../api/apiServicios";
+import { useServicios, type Servicio } from "../../hooks/useServicios";
 
 export const Servicios = () => {
+    const { listar: obtenerServicios, registrar: crearServicio, actualizar: actualizarServicio, eliminar: eliminarServicioApi, exportarReporte } = useServicios();
+
     const [servicios, asignarServicios] = useState<Servicio[]>([]);
     const [cargando, asignarCargando] = useState(true);
     const [error, asignarError] = useState<string | null>(null);
@@ -155,15 +151,9 @@ export const Servicios = () => {
         if (busqueda.trim() === "") return true;
         const searchLow = busqueda.toLowerCase();
         
-        const dictCampos: Record<string, string> = { SEDAN: "Sedán", CAMIONETA: "Camioneta", MOTO: "Moto", CAMION: "Camión" };
-        const tipoVehiculo = dictCampos[s.tipoVehiculo] || s.tipoVehiculo;
-        
         return (
-            (s.nombre?.toLowerCase() || "").includes(searchLow) ||
-            (s.descripcion?.toLowerCase() || "").includes(searchLow) ||
-            (tipoVehiculo.toLowerCase()).includes(searchLow) ||
-            String(s.precio).includes(searchLow) ||
-            String(s.duracionMinutos).includes(searchLow)
+            (s.id?.toLowerCase() || "").includes(searchLow) ||
+            (s.nombre?.toLowerCase() || "").includes(searchLow)
         );
     });
 
@@ -191,6 +181,12 @@ export const Servicios = () => {
                         onChange={(e) => setBusqueda(e.target.value)} 
                         className="bg-slate-900 border border-slate-800 text-white px-4 py-2 rounded-xl focus:ring-1 focus:ring-cyan-500 outline-none flex-1 md:w-64" 
                     />
+                    <button
+                        onClick={exportarReporte}
+                        className="bg-slate-700 text-cyan-400 px-6 py-2 rounded-xl font-bold hover:bg-slate-600 transition-all border border-cyan-500/30"
+                    >
+                        REPORTE PDF
+                    </button>
                     <button
                         onClick={abrirModalCrear}
                         className="bg-cyan-500 text-slate-900 px-6 py-2 rounded-xl font-bold hover:bg-cyan-400 transition-all"

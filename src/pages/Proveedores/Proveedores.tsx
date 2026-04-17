@@ -1,14 +1,10 @@
 import { useState, useEffect } from "react";
 import { Modal } from "../../components/UI/Modal";
-import {
-    type Proveedor,
-    obtenerProveedores,
-    crearProveedor,
-    actualizarProveedor,
-    eliminarProveedor as eliminarProveedorApi,
-} from "../../api/apiProveedores";
+import { useProveedores, type Proveedor } from "../../hooks/useProveedores";
 
 export const Proveedores = () => {
+    const { listar: obtenerProveedores, registrar: crearProveedor, actualizar: actualizarProveedor, eliminar: eliminarProveedorApi, exportarReporte } = useProveedores();
+    
     const [proveedores, asignarProveedores] = useState<Proveedor[]>([]);
     const [cargando, asignarCargando] = useState(true);
     const [error, asignarError] = useState<string | null>(null);
@@ -158,10 +154,8 @@ export const Proveedores = () => {
         if (busqueda.trim() === "") return true;
         const searchLow = busqueda.toLowerCase();
         return (
-            (p.rif?.toLowerCase() || "").includes(searchLow) ||
-            (p.nombre?.toLowerCase() || "").includes(searchLow) ||
-            (p.telefono?.toLowerCase() || "").includes(searchLow) ||
-            (p.email?.toLowerCase() || "").includes(searchLow)
+            (p.id?.toLowerCase() || "").includes(searchLow) ||
+            (p.nombre?.toLowerCase() || "").includes(searchLow)
         );
     });
 
@@ -189,6 +183,12 @@ export const Proveedores = () => {
                         onChange={(e) => setBusqueda(e.target.value)} 
                         className="bg-slate-900 border border-slate-800 text-white px-4 py-2 rounded-xl focus:ring-1 focus:ring-cyan-500 outline-none flex-1 md:w-64" 
                     />
+                    <button
+                        onClick={exportarReporte}
+                        className="bg-slate-700 text-cyan-400 px-6 py-2 rounded-xl font-bold hover:bg-slate-600 transition-all border border-cyan-500/30"
+                    >
+                        REPORTE PDF
+                    </button>
                     <button
                         onClick={abrirModalCrear}
                         className="bg-cyan-500 text-slate-900 px-6 py-2 rounded-xl font-bold hover:bg-cyan-400 transition-all"
