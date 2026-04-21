@@ -1,14 +1,17 @@
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import LoginPage from "./pages/Login/LoginPage";
-import PaginaInicioP from "./pages/Inicio/PaginaInicioP";
-import PaginaInicioPRIV from "./pages/Inicio/PaginaInicioPRIV";
-import VehiculoPage from "./pages/Vehiculo/VehiculoPage";
-import InventarioPage from "./pages/Inventario/InventarioPage";
-import FacturacionPage from "./pages/factura/FacturacionPage";
+import { PaginaInicioP } from "./pages/Inicio/PaginaInicioP";
+import { ClientesPage } from "./pages/Cliente/ClientesPage";
+import { PaginaInicioPRIV } from "./pages/Inicio/PaginaInicioPRIV";
+import { TipoVehiculoPage } from "./pages/TipoVehiculo/TipoVehiculoPage";
+import { VehiculoPage } from "./pages/Vehiculo/VehiculoPage";
+import { InventarioPage } from "./pages/Inventario/InventarioPage";
+import { FacturacionPage } from "./pages/factura/FacturacionPage";
 import ModuloContable from "./pages/Contable/ModuloContable";
-import RecepcionPage from "./pages/recepciones/RecepcionPage";
+import { RecepcionPage } from "./pages/recepciones/RecepcionPage";
 import { Servicios } from "./pages/Servicios/Servicios";
 import { Proveedores } from "./pages/Proveedores/Proveedores";
+
 
 import { DashboardLayout } from "./components/Layout/DashboardLayout";
 
@@ -22,6 +25,8 @@ function App() {
 
         <Route element={<DashboardLayout />}>
           <Route path="/inicioprivado" element={<PaginaInicioPRIV />} />
+          <Route path="/tipovehiculos" element={<TipoVehiculoPage />} />
+          <Route path="/clientes" element={< ClientesPage/>} />
           <Route path="/vehiculos" element={<VehiculoPage />} />
           <Route path="/inventario" element={<InventarioPage />} />
           <Route path="/recepcion" element={<RecepcionPage />} />

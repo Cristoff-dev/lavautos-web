@@ -43,12 +43,12 @@ export const RecepcionPage = () => {
             </div>
         )
     }
-  ];
+];
 
   // 2. Datos de ejemplo
-  const datosRecepcion = [
+const datosRecepcion = [
     { id: 1, combo: "FULL'COMBO", costoBs: 8200, costoUsd: 20, vehiculo: "GTX2026", estado: "EN PROCESO" }
-  ];
+];
 
     return (
         <div className="animate-fadeIn">
@@ -70,7 +70,7 @@ export const RecepcionPage = () => {
             </div>
 
             <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl relative">
-              
+        
             </div>
             <TablaGenerica 
         columnas={columnasRecepcion} 

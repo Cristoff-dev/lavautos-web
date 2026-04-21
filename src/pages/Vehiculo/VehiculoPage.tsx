@@ -73,7 +73,7 @@ const datosVehiculos = [
             </div>
 
             <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl relative">
-           
+            
                 <VehiculoModal
                     isOpen={isModalOpen}
                     onClose={() => setIsModalOpen(false)}

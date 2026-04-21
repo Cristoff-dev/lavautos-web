@@ -5,6 +5,7 @@ export const Sidebar = ({ isOpen }: { isOpen: boolean }) => {
     const menuItems = [
         { name: "Inicio", path: "/inicioprivado", icon: <TfiHome /> },
         { name: "Vehículo(s)", path: "/vehiculos", icon: <TfiTruck /> },
+        { name: "Tipo Vehículo(s)", path: "/tipovehiculos", icon: <TfiTruck /> },
         { name: "Inventario", path: "/inventario", icon: <TfiPackage /> },
         { name: "Recepcion", path: "/recepcion", icon: <TfiReceipt /> },
         { name: "Servicios", path: "/servicios", icon: <TfiTag /> },
