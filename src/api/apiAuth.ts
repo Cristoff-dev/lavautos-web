@@ -29,5 +29,5 @@ export async function login(username: string, password: string): Promise<Respues
     }
 
     const data = await res.json();
-    return data.data ?? data;
+    return data.details ?? data;
 }

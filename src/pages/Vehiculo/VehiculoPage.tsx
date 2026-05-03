@@ -31,7 +31,7 @@ export const VehiculoPage = () => {
     { 
         llave: "estadoPago" as const, 
         etiqueta: "Estado Pago",
-        render: (v: any) => (
+        render: () => (
             <span className="px-2 py-1 bg-green-500/10 text-green-500 rounded-md text-[10px] font-bold uppercase italic">Pagado</span>
         )
     },

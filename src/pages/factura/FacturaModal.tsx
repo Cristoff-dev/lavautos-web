@@ -7,7 +7,7 @@ interface FacturaModalProps {
 
 export const FacturaModal = ({ isOpen, onClose }: FacturaModalProps) => {
 return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Generar Factura 💰">
+    <Modal abierto={isOpen} alCerrar={onClose} titulo="Generar Factura 💰">
         <div className="text-center space-y-4">
         <p className="text-slate-300">Aquí irá el detalle de los servicios, insumos usados y el total a pagar.</p>
         
